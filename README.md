@@ -13,8 +13,7 @@ through manually running commands.
 * easy install and upgrade of dependencies
 
 For new setups we use [FiloSottile/yubikey-agent](https://github.com/FiloSottile/yubikey-agent). This is a great project
-which makes using the YubiKey with SSH really fun. It just works ;) We currently use our own fork to be able to save the
-PIN to the keychain and not type it every time we connect the key. We have opened a [pullrequest](https://github.com/FiloSottile/yubikey-agent/pull/46). Once merged we will switch back.
+which makes using the YubiKey with SSH really fun. It just works ;)
 
 **For us this is also a documentation that happens to be executable ;)**
 
