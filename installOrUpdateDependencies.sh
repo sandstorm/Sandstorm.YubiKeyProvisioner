@@ -9,7 +9,7 @@ green_echo "STEP 1: installing/upgrading opensc"
 # The OpenSSH PKCS11 smartcard integration will not work from High Sierra
 # onwards. If you need this functionality, unlink this formula, then install
 # the OpenSC cask. (https://formulae.brew.sh/formula/opensc)
-brew brew unlink opensc
+brew unlink opensc || true
 brew reinstall homebrew/cask/opensc
 # Disable SmartCard UI otherwise we will get a pairing notification every time we
 # insert a YubiKey
@@ -17,8 +17,10 @@ currentUser=`who | grep "console" | cut -d" " -f1`
 sudo su - "$currentUser" -c "/usr/sbin/sc_auth pairing_ui -s disable"
 
 green_echo "STEP 2: installing/updating YubiKey management tools"
+rm '/usr/local/lib/libykcs11.dylib' || true
 brew reinstall ykman
-brew reinstall yubico-piv-tool
+brew reinstall yubico-piv-tool && echo "Installed PIV tool" || echo "Failed to install PIV tool"
+brew link --overwrite yubico-piv-tool || true
 
 echo ""
 green_echo "STEP 3: removing yubikey-agent"
