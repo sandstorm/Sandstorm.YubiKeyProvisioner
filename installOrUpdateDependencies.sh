@@ -17,7 +17,7 @@ currentUser=`who | grep "console" | cut -d" " -f1`
 sudo su - "$currentUser" -c "/usr/sbin/sc_auth pairing_ui -s disable"
 
 green_echo "STEP 2: installing/updating YubiKey management tools"
-rm '/usr/local/lib/libykcs11.dylib' || true
+rm -f /usr/local/lib/libykcs11.dylib
 brew reinstall ykman
 brew reinstall yubico-piv-tool && echo "Installed PIV tool" || echo "Failed to install PIV tool"
 brew link --overwrite yubico-piv-tool || true
