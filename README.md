@@ -29,6 +29,38 @@ IMPORTANT: this will reset your YubiKey to factory defaults.
 
 run `./resetAndProvisionYubiKey.sh`
 
-## The old way (before using` FiloSottile/yubikey-agent)
+# Removing our old YubiKey agent installation
+
+## Preparations
+
+* check where the YubiKey binary is: `which ykpiv-ssh-agent-helper`
+* check if it was installed with brew: `brew services list`
+* check which user installed the YubiKey agent: `ls -la $(which ykpiv-ssh-agent-helper)` -> results in a path like `/Library/LaunchAgents/com.duosecurity.ykpiv-ssh-agent-helper.plist`
+
+## Uninstall
+
+* remove the autostart entry: `sudo rm /Library/LaunchAgents/com.duosecurity.ykpiv-ssh-agent-helper.plist`
+* remove the binary: `sudo rm /usr/local/bin/ykpiv-ssh-agent-helper`
+* make sure no processes are running: `killall ykpiv-ssh-agent-helper`
+
+# Migrating to the new YubiKey agent with a previously set up YubiKey
+
+* install our forked YubiKey agent: `brew install sandstorm/tap/yubikey-agent-sandstorm`
+* add the agent to autostart: `brew services start sandstorm/tap/yubikey-agent-sandstorm`
+
+Try an ssh connection to any target to get the prompt to enter the YubiKey PIN
+
+* get the PIN from your Keychain, look for `ykpiv`
+* enter the PIN in "Pinentry Mac" and save to Keychain
+* add the following to .zshrc:
+`# we don't override the $SSH_AUTH_SOCK variable, because this would only set it for the current terminal,
+# and not for interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections.
+# That's why we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
+if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
+    rm $SSH_AUTH_SOCK
+    ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
+fi`
+
+## The old way (before using `FiloSottile/yubikey-agent`)
 
 see OLD_BACKUP.txt for the old guide
