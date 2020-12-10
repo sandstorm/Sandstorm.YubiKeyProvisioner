@@ -124,6 +124,18 @@ cat "$(whoami)".yubikey.pub
 echo "---------------------------------------------------------"
 echo
 yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
+yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications"
+cat << EOF
+---------------------------------------------------------
+# and not for interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections.
+# That's why we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
+if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
+    rm $SSH_AUTH_SOCK
+    ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
+fi
+---------------------------------------------------------
+EOF
+
 yellow_echo "  * For more information check out https://github.com/FiloSottile/yubikey-agent"
 echo
 green_echo "DONE"
