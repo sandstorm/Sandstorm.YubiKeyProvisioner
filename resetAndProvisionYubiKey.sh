@@ -108,7 +108,7 @@ green_echo "STEP 6 - Manual Steps to finalize"
 echo
 yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
 yellow_echo "  * For Firefox enable U2F support"
-yellow_echo "  * Copy the generated public key ./generated/$currentUser.yubikey.pub to ~/.ssh"
+yellow_echo "  * Copy the generated public key to your ssh directory: cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
 yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for the sandstorm domain"
 cat << EOF
 ---------------------------------------------------------
