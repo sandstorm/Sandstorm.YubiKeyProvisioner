@@ -54,13 +54,15 @@ Try an ssh connection to any target to get the prompt to enter the YubiKey PIN
 * enter the PIN in "Pinentry Mac" and save to Keychain
 * add the following to .zshrc:
 
-```# we don't override the $SSH_AUTH_SOCK variable, because this would only set it for the current terminal,
+```shell
+# we don't override the $SSH_AUTH_SOCK variable, because this would only set it for the current terminal,
 # and not for interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections.
 # That's why we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
 if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
     rm $SSH_AUTH_SOCK
     ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
-fi```
+fi
+```
 
 ## The old way (before using `FiloSottile/yubikey-agent`)
 
