@@ -8,8 +8,6 @@ default_puk="12345678"
 # we generate a random PIN and PUK here to enforce safety
 # and have the script run through correctly. The user will be prompted
 # to safe PIN and PUK to the vault
-pin=$(cat /dev/urandom | env LC_CTYPE=C tr -dc a-zA-Z0-9 | head -c 6; echo)
-puk=$(cat /dev/urandom | env LC_CTYPE=C tr -dc a-zA-Z0-9 | head -c 8; echo)
 
 currentUser=`who | grep "console" | cut -d" " -f1`
 
@@ -69,10 +67,34 @@ ykman piv change-management-key \
 echo
 echo
 green_echo "STEP 4 - Generating & Setting A PUK And PIN"
-echo "  PUK:${puk}"
-echo "  PIN:${pin}"
+pin_pattern=^[a-zA-Z0-9]{6}$
+puk_pattern=^[a-zA-Z0-9]{8}$
+echo "  Use your personal vault to generate (and save) a PIN and a PUK."
+grey_echo "  The PUK must be 8 characters long and must only contain numbers, uppercase letters"
+grey_echo "  and lowercase letters."
+grey_echo "  The PIN must be 6 characters long and must only contain numbers, uppercase letters"
+grey_echo "  and lowercase letters."
+while true; do
+    echo
+    read -s -p "    Enter PUK: " puk
+    [[ $puk =~ $puk_pattern ]] && green_echo "OK" && break
+    echo
+    yellow_echo "    The PUK must be 8 characters long and only contain the following characters: a-zA-Z0-9"
+    echo "    Please try again"
+done
+while true; do
+    echo
+    read -s -p "    Enter PIN: " pin
+    [[ $pin =~ $pin_pattern ]] && green_echo "OK" && break
+    echo
+    yellow_echo "    The PIN must be 6 characters long and only contain the following characters: a-zA-Z0-9"
+    echo "    Please try again"
+done
 echo
-yellow_echo "  * Store your PUK and PIN in your Personal vault!!!"
+echo "  PUK: ${puk}"
+echo "  PIN: ${pin}"
+echo
+yellow_echo "  * Store your PUK and PIN in your personal vault!!!"
 yellow_echo "  * Also store the Serial Number of your YubiKey. This is as list of connected devices:"
 echo "    * $(ykman list)"
 echo
