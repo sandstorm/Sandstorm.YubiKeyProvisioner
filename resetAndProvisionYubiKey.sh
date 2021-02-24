@@ -8,25 +8,23 @@ default_puk="12345678"
 # we generate a random PIN and PUK here to enforce safety
 # and have the script run through correctly. The user will be prompted
 # to safe PIN and PUK to the vault
-pin=$(cat /dev/urandom | env LC_CTYPE=C tr -dc a-zA-Z0-9 | head -c 6; echo)
-puk=$(cat /dev/urandom | env LC_CTYPE=C tr -dc a-zA-Z0-9 | head -c 8; echo)
 
-currentUser=`who | grep "console" | cut -d" " -f1`
+currentUser=$(who | grep "console" | cut -d" " -f1)
 
 green_echo() {
-  printf "\033[0;32m${1}\033[0m\n"
+  printf "\033[0;32m%s\033[0m\n" "${1}"
 }
 
 yellow_echo() {
-  printf "\033[1;33m${1}\033[0m\n"
+  printf "\033[1;33m%s\033[0m\n" "${1}"
 }
 
 red_echo() {
-  printf "\033[0;31m${1}\033[0m\n"
+  printf "\033[0;31m%s\033[0m\n" "${1}"
 }
 
 grey_echo() {
-  printf "\033[0;37m${1}\033[0m\n"
+  printf "\033[0;37m%s\033[0m\n" "${1}"
 }
 
 green_echo "STEP 1 - Resetting YubiKey"
@@ -54,9 +52,9 @@ green_echo "STEP 3 - Setting A Management Key"
 yellow_echo "Please provide the company-wide management key. Ask your Admin"
 
 while true; do
-    read -s -p "management key: " management_key
+    read -r -s -p "management key: " management_key
     echo
-    read -s -p "management key (again): " management_key_repeat
+    read -r -s -p "management key (again): " management_key_repeat
     echo
     [ "$management_key" = "$management_key_repeat" ] && break
     echo "Please try again"
@@ -69,18 +67,57 @@ ykman piv change-management-key \
 echo
 echo
 green_echo "STEP 4 - Generating & Setting A PUK And PIN"
-echo "  PUK:${puk}"
-echo "  PIN:${pin}"
+puk_pattern='^[a-zA-Z0-9]{8}$'
+pin_pattern='^[a-zA-Z0-9]{6}$'
+echo "  Use your personal vault to generate (and save) the PUK and the PIN."
+grey_echo "  The PUK must be 8 characters long and must only contain numbers, uppercase letters"
+grey_echo "  and lowercase letters."
+grey_echo "  The PIN must be 6 characters long and must only contain numbers, uppercase letters"
+grey_echo "  and lowercase letters."
+while true; do
+    echo
+    read -r -s -p "    Enter PUK: " puk
+    if [[ ! ${puk} =~ ${puk_pattern} ]] ; then
+        echo
+        yellow_echo "    The PUK must be 8 characters long and only contain the following characters: a-zA-Z0-9"
+        echo "    Please try again"
+        echo
+        continue
+    fi
+    green_echo "OK"
+    read -r -s -p "    Repeat PUK: " puk_repeat
+    [[ $puk == "$puk_repeat" ]] && green_echo "OK" && break
+    echo
+    yellow_echo "    PUKs do not match"
+    echo "    Please try again"
+done
+while true; do
+    echo
+    read -r -s -p "    Enter PIN: " pin
+    if [[ ! ${pin} =~ ${pin_pattern} ]] ; then
+        echo
+        yellow_echo "    The PIN must be 6 characters long and only contain the following characters: a-zA-Z0-9"
+        echo "    Please try again"
+        echo
+        continue
+    fi
+    green_echo "OK"
+    read -r -s -p "    Repeat PIN: " pin_repeat
+    [[ $pin == "$pin_repeat" ]] && green_echo "OK" && break
+    echo
+    yellow_echo "    PINs do not match"
+    echo "    Please try again"
+done
 echo
-yellow_echo "  * Store your PUK and PIN in your Personal vault!!!"
+yellow_echo "  * Store your PUK and PIN in your personal vault!!!"
 yellow_echo "  * Also store the Serial Number of your YubiKey. This is as list of connected devices:"
 echo "    * $(ykman list)"
 echo
-read -p "Press enter to continue. PUK and PIN will be provisioned."
+read -r -p "Press enter to continue. PUK and PIN will be provisioned."
 
-ykman piv change-puk --puk $default_puk --new-puk $puk \
+ykman piv change-puk --puk $default_puk --new-puk "$puk" \
   || { red_echo "Make sure that you do NOT run this script for an already provisioned YubiKey!!!"; exit; }
-ykman piv change-pin --pin $default_pin --new-pin $pin \
+ykman piv change-pin --pin $default_pin --new-pin "$pin" \
   || { red_echo "Make sure that you do NOT run this script for an already provisioned YubiKey!!!"; exit; }
 echo
 echo
@@ -88,8 +125,8 @@ green_echo "STEP 5 - Generating SSH Keys"
 echo "Please enter your personal information."
 echo "It will be used as the Subject common name (CN) for the certificate like so 'CN=SSH for {first_name} {last_name}'"
 echo
-read -p "First Name: " first_name
-read -p "Last Name: " last_name
+read -r -p "First Name: " first_name
+read -r -p "Last Name: " last_name
 echo
 rm -rf generated &> /dev/null
 mkdir -p generated &> /dev/null
