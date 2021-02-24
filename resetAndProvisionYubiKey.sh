@@ -11,6 +11,10 @@ default_puk="12345678"
 
 currentUser=$(who | grep "console" | cut -d" " -f1)
 
+# We need to know where brew was installed to use the correct location for
+# the yubikey socket. This can be different depending on processor generation and OS version
+brewPrefix=$(brew --prefix)
+
 green_echo() {
   printf "\033[0;32m%s\033[0m\n" "${1}"
 }
@@ -144,8 +148,10 @@ mkdir -p generated &> /dev/null
 
 pushd ./generated &> /dev/null
 echo "-> generate private key on yubikey to be used for SSH"
+echo "   this might take a while, keep tapping the yubikey"
 ykman piv generate-key --management-key "$management_key" --touch-policy CACHED --pin-policy ONCE 9a public.pem
 echo "-> generate self-signed certificate for that key"
+echo "   this might take a while, keep tapping the yubikey"
 ykman piv generate-certificate --management-key "$management_key" --pin "$pin" -d 3650 -s "/CN=SSH for $first_name $last_name/" 9a public.pem
 rm public.pem
 echo "-> extract public SSH key from YubiKey"
@@ -161,12 +167,12 @@ yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
 yellow_echo "  * For Firefox enable U2F support"
 yellow_echo "  * Copy the generated public key to your ssh directory: cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
 yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections."
-cat << EOF
----------------------------------------------------------
-Host *
-    IdentityAgent /usr/local/var/run/yubikey-agent.sock
----------------------------------------------------------
-EOF
+echo
+echo "---------------------------------------------------------"
+echo "Host *"
+echo "   IdentityAgent $brewPrefix/var/run/yubikey-agent.sock"
+echo "---------------------------------------------------------"
+echo
 red_echo "  * Always using the YubiKey for SSH connections is strongly advised!!!"
 yellow_echo "  * Add your public key where needed, e.g. gitlab"
 echo
@@ -176,16 +182,15 @@ echo "---------------------------------------------------------"
 echo
 yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
 yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections"
-cat << EOF
----------------------------------------------------------
-# we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
-if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
-    rm $SSH_AUTH_SOCK
-    ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
-fi
----------------------------------------------------------
-EOF
-
+echo
+echo "---------------------------------------------------------"
+echo "# we disable the user's built-in SSH agent and override it with the yubikey agent's socket."
+echo "if [ "$SSH_AUTH_SOCK" != "$brewPrefix/var/run/yubikey-agent.sock" ]; then"
+echo "   rm $SSH_AUTH_SOCK"
+echo "   ln -s $brewPrefix/var/run/yubikey-agent.sock $SSH_AUTH_SOCK"
+echo "fi"
+echo "---------------------------------------------------------"
+echo
 yellow_echo "  * For more information check out https://github.com/FiloSottile/yubikey-agent"
 echo
 green_echo "DONE"
