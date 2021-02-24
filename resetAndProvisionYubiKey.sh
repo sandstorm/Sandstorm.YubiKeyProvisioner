@@ -27,6 +27,8 @@ grey_echo() {
   printf "\033[0;37m%s\033[0m\n" "${1}"
 }
 
+# RESETTTING
+
 green_echo "STEP 1 - Resetting YubiKey"
 echo
 echo "-> Reset Fido"
@@ -48,6 +50,9 @@ echo "enables all interfaces except OTP"
 ykman mode FIDO+CCID
 echo
 echo
+
+# MANAGEMENT KEY
+
 green_echo "STEP 3 - Setting A Management Key"
 yellow_echo "Please provide the company-wide management key. Ask your Admin"
 
@@ -66,6 +71,9 @@ ykman piv change-management-key \
   || { red_echo "Make sure that you do NOT run this script for an already provisioned YubiKey!!!"; exit; }
 echo
 echo
+
+# PUK AND PIN
+
 green_echo "STEP 4 - Generating & Setting A PUK And PIN"
 puk_pattern='^[a-zA-Z0-9]{8}$'
 pin_pattern='^[a-zA-Z0-9]{6}$'
@@ -121,6 +129,9 @@ ykman piv change-pin --pin $default_pin --new-pin "$pin" \
   || { red_echo "Make sure that you do NOT run this script for an already provisioned YubiKey!!!"; exit; }
 echo
 echo
+
+# SHH KEYS
+
 green_echo "STEP 5 - Generating SSH Keys"
 echo "Please enter your personal information."
 echo "It will be used as the Subject common name (CN) for the certificate like so 'CN=SSH for {first_name} {last_name}'"
@@ -141,12 +152,15 @@ echo "-> extract public SSH key from YubiKey"
 pkcs15-tool --read-ssh-key 01 | sed -e "s/PIV AUTH pubkey/$currentUser@YubiKey/g" > "$currentUser".yubikey.pub
 echo
 echo
+
+# DISPLAYING HELP FOR MANUAL STEPS
+
 green_echo "STEP 6 - Manual Steps to finalize"
 echo
 yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
 yellow_echo "  * For Firefox enable U2F support"
 yellow_echo "  * Copy the generated public key to your ssh directory: cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
-yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for the sandstorm domain"
+yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections."
 cat << EOF
 ---------------------------------------------------------
 Host *
@@ -161,11 +175,10 @@ cat "$(whoami)".yubikey.pub
 echo "---------------------------------------------------------"
 echo
 yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
-yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications"
+yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections"
 cat << EOF
 ---------------------------------------------------------
-# and not for interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections.
-# That's why we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
+# we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
 if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
     rm $SSH_AUTH_SOCK
     ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
