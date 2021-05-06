@@ -23,6 +23,30 @@ Can be run separately to upgrade needed dependencies
 
 run `./installOrUpdateDependencies.sh`
 
+## Get your YubiKey working after an OS nuke
+
+Install the dependencies as described above.
+
+If you still have your PIN/PUK, all you need to do after installing the dependencies 
+is to register your SSH agent:
+
+add this to your ~/.ssh/config file:
+```
+Host *
+    UseKeychain yes
+    IdentityAgent /usr/local/var/run/yubikey-agent.sock
+```
+
+this is the part of the `./resetAndProvisionYubiKey.sh` script you need to run
+```
+rm /private/tmp/com.apple.launchd.rvMoUNVsps/Listeners
+ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
+```
+
+Note that /usr/local in the ln command must match your brew prefix.
+
+Finally, try to connect anywhere via ssh and you should be prompted to enter your PIN.
+
 ## Resetting and Provisioning a new YubiKey
 
 IMPORTANT: this will reset your YubiKey to factory defaults.
