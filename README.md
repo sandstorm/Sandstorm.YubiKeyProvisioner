@@ -23,71 +23,32 @@ Can be run separately to upgrade needed dependencies
 
 run `./installOrUpdateDependencies.sh`
 
-## Get your YubiKey working after an OS nuke
-
-Install the dependencies as described above.
-
-If you still have your PIN/PUK, all you need to do after installing the dependencies 
-is to register your SSH agent:
-
-add this to your ~/.ssh/config file:
-```
-Host *
-    UseKeychain yes
-    IdentityAgent /usr/local/var/run/yubikey-agent.sock
-```
-
-this is the part of the `./resetAndProvisionYubiKey.sh` script you need to run
-```
-rm /private/tmp/com.apple.launchd.rvMoUNVsps/Listeners
-ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
-```
-
-Note that /usr/local in the ln command must match your brew prefix.
-
-Finally, try to connect anywhere via ssh and you should be prompted to enter your PIN.
-
 ## Resetting and Provisioning a new YubiKey
 
 IMPORTANT: this will reset your YubiKey to factory defaults.
 
 run `./resetAndProvisionYubiKey.sh`
 
-# Removing our old YubiKey agent installation
+## Getting your existing YubiKey working on a new System
 
-## Preparations
+run `./installOrUpdateDependencies.sh`
 
-* check where the YubiKey binary is: `which ykpiv-ssh-agent-helper`
-* check if it was installed with brew: `brew services list`
-* check which user installed the YubiKey agent: `ls -la $(which ykpiv-ssh-agent-helper)` -> results in a path like `/Library/LaunchAgents/com.duosecurity.ykpiv-ssh-agent-helper.plist`
+You may need to set up your ssh config again. In `~/.ssh/config`
 
-## Uninstall
+**For M1 Macs brew is installed in `/opt/homebrew`**
 
-* remove the autostart entry: `sudo rm /Library/LaunchAgents/com.duosecurity.ykpiv-ssh-agent-helper.plist`
-* remove the binary: `sudo rm /usr/local/bin/ykpiv-ssh-agent-helper`
-* make sure no processes are running: `killall ykpiv-ssh-agent-helper`
-
-# Migrating to the new YubiKey agent with a previously set up YubiKey
-
-* install our forked YubiKey agent: `brew install sandstorm/tap/yubikey-agent-sandstorm`
-* add the agent to autostart: `brew services start sandstorm/tap/yubikey-agent-sandstorm`
-
-Try an ssh connection to any target to get the prompt to enter the YubiKey PIN
-
-* get the PIN from your Keychain, look for `ykpiv`
-* enter the PIN in "Pinentry Mac" and save to Keychain
-* add the following to .zshrc:
-
-```shell
-# we don't override the $SSH_AUTH_SOCK variable, because this would only set it for the current terminal,
-# and not for interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections.
-# That's why we disable the user's built-in SSH agent and override it with the yubikey agent's socket.
-if [ "$SSH_AUTH_SOCK" != "/usr/local/var/run/yubikey-agent.sock" ]; then
-    rm $SSH_AUTH_SOCK
-    ln -s /usr/local/var/run/yubikey-agent.sock $SSH_AUTH_SOCK
-fi
+```
+Host *
+  IdentityAgent /opt/homebrew/var/run/yubikey-agent.sock 
 ```
 
-## The old way (before using `FiloSottile/yubikey-agent`)
+**For Intel Macs brew is installed in `/usr/local`**
+
+```
+Host *
+  IdentityAgent /usr/local/var/run/yubikey-agent.sock 
+```
+
+## The old way (before using` FiloSottile/yubikey-agent)
 
 see OLD_BACKUP.txt for the old guide
