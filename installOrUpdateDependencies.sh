@@ -13,7 +13,7 @@ brew unlink opensc || true
 brew reinstall homebrew/cask/opensc
 # Disable SmartCard UI otherwise we will get a pairing notification every time we
 # insert a YubiKey
-currentUser=`who | grep "console" | cut -d" " -f1`
+currentUser=`whoami`
 sudo su - "$currentUser" -c "/usr/sbin/sc_auth pairing_ui -s disable"
 
 green_echo "STEP 2: installing/updating YubiKey management tools"
