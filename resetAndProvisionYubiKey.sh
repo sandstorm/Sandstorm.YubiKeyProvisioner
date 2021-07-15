@@ -9,7 +9,7 @@ default_puk="12345678"
 # and have the script run through correctly. The user will be prompted
 # to safe PIN and PUK to the vault
 
-currentUser=$(who | grep "console" | cut -d" " -f1)
+currentUser=`whoami`
 
 # We need to know where brew was installed to use the correct location for
 # the yubikey socket. This can be different depending on processor generation and OS version
