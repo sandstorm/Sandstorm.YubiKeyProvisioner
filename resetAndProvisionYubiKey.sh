@@ -160,6 +160,7 @@ echo "---------------------------------------------------------"
 echo
 yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
 yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections"
+yellow_echo "  * ensure no other SSH_AUTH_SOCK line is present in .zshrc -> run `export | grep SSH_` which should output something like `/private/tmp/com.apple.launchd...`"
 echo
 echo "---------------------------------------------------------"
 echo "# we disable the user's built-in SSH agent and override it with the yubikey agent's socket."
