@@ -37,14 +37,14 @@ You may need to set up your ssh config again. In `~/.ssh/config`
 
 **For M1 Macs brew is installed in `/opt/homebrew`**
 
-```
+```yaml
 Host *
   IdentityAgent /opt/homebrew/var/run/yubikey-agent.sock 
 ```
 
 **For Intel Macs brew is installed in `/usr/local`**
 
-```
+```yaml
 Host *
   IdentityAgent /usr/local/var/run/yubikey-agent.sock 
 ```
