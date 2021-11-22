@@ -143,8 +143,8 @@ echo
 green_echo "STEP 6 - Manual Steps to finalize"
 echo
 yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
-yellow_echo "  * Copy the generated public key to your ssh directory: cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
-yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections."
+yellow_echo "  * Copy the generated public key to your ssh directory: mkdir -p ~/.ssh/ && cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
+yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections. If the config-file does not exist, add it using `touch ~/.ssh/config`"
 echo
 echo "---------------------------------------------------------"
 echo "Host *"
