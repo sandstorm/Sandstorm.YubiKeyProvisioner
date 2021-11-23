@@ -30,8 +30,8 @@ brew uninstall yubikey-agent &> /dev/null && echo "Agent was uninstalled" || ech
 
 echo ""
 green_echo "STEP 4: installing yubikey-agent"
-brew install yubikey-agent
+brew install sandstorm/tap/sandstorm-yubikey-agent
 
 echo ""
 green_echo "STEP 5: starting yubikey service" 
-brew services start yubikey-agent
+brew services start sandstorm/tap/sandstorm-yubikey-agent

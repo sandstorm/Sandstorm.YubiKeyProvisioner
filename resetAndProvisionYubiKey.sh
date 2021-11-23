@@ -143,8 +143,8 @@ echo
 green_echo "STEP 6 - Manual Steps to finalize"
 echo
 yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
-yellow_echo "  * Copy the generated public key to your ssh directory: mkdir -p ~/.ssh/ && cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
-yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections. If the config-file does not exist, add it using `touch ~/.ssh/config`"
+yellow_echo "  * Copy the generated public key to your ssh directory (for reference): mkdir -p ~/.ssh/ && cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
+yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections. If the config-file does not exist, add it using `mkdir ~/.ssh; touch ~/.ssh/config`"
 echo
 echo "---------------------------------------------------------"
 echo "Host *"
@@ -159,17 +159,8 @@ cat "$(whoami)".yubikey.pub
 echo "---------------------------------------------------------"
 echo
 yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
-yellow_echo "  * Add the following lines to your ~/.zshrc file to ensure the Yubikey works in interactive applications like Sequel Pro/Sequel Ace or IntelliJ which open SSH connections"
-yellow_echo "  * ensure no other SSH_AUTH_SOCK line is present in .zshrc -> run `export | grep SSH_` which should output something like `/private/tmp/com.apple.launchd...`"
-echo
-echo "---------------------------------------------------------"
-echo "# we disable the user's built-in SSH agent and override it with the yubikey agent's socket."
-echo "if [ "$SSH_AUTH_SOCK" != "$brewPrefix/var/run/yubikey-agent.sock" ]; then"
-echo "   rm $SSH_AUTH_SOCK"
-echo "   ln -s $brewPrefix/var/run/yubikey-agent.sock $SSH_AUTH_SOCK"
-echo "fi"
-echo "---------------------------------------------------------"
-echo
+yellow_echo "  * You do NOT need to override SSH_AUTH_SOCK anymore - the above setup has been tested and works for command line, IntelliJ, Fork, Sourcetree."
+yellow_echo "  * ensure that no SSH_AUTH_SOCK line is present in .zshrc -> run `cat ~/.zshrc | grep SSH_AUTH_SOCK` which should NOT output anything."
 yellow_echo "  * For more information check out https://github.com/FiloSottile/yubikey-agent"
 echo
 green_echo "DONE"

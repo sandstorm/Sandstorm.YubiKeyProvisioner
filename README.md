@@ -12,10 +12,60 @@ through manually running commands.
 * no recurring prompts for management key, PIN or PUK
 * easy install and upgrade of dependencies
 
-For new setups we use [FiloSottile/yubikey-agent](https://github.com/FiloSottile/yubikey-agent). This is a great project
-which makes using the YubiKey with SSH really fun. It just works ;)
+For new setups we use [a custom fork of FiloSottile/yubikey-agent](https://github.com/sandstorm/yubikey-agent).
+This is a great project which makes using the YubiKey with SSH really fun. It just works ;)
 
 **For us this is also a documentation that happens to be executable ;)**
+
+
+## UPDATE 11/2021: No fiddling with SSH_AUTH_SOCK anymore
+
+We again use a forked version of yubikey-agent, because we need to be able to hotfix things if things go wrong.
+
+1. To migrate to the hotfixed version, do:
+
+    ```
+    brew services stop yubikey-agent
+    brew uninstall yubikey-agent
+    brew install sandstorm/tap/sandstorm-yubikey-agent
+    brew services start sandstorm/tap/sandstorm-yubikey-agent
+    ```
+
+
+2. Please ensure that the `~/.ssh/config` file contains the following contents:
+
+    **for Intel Macs**
+
+    ```
+    Host *
+        IdentityAgent /usr/local/var/run/yubikey-agent.sock
+    ```
+
+    **for M1 Macs**
+
+    ```
+    Host *
+        IdentityAgent /opt/homebrew/var/run/yubikey-agent.sock
+    ```
+
+3. Additionally, also check that **the SSH_AUTH_SOCK is not manipulated** in ~/.zshrc:
+
+    ```bash
+    # the following line should NOT OUTPUT ANYTHING
+    cat ~/.zshrc | grep SSH_AUTH_SOCK
+    ```
+
+    In case the above output shows anything, edit the file and remove that
+    section completely.
+
+
+The above steps has been tested on Mac OS 12.0 on an M1 Mac with:
+
+- Command Line
+- IntelliJ
+- Fork
+- SourceTree
+- Visual Studio Code
 
 ## Installing Dependencies
 
@@ -49,6 +99,13 @@ Host *
   IdentityAgent /usr/local/var/run/yubikey-agent.sock 
 ```
 
-## The old way (before using` FiloSottile/yubikey-agent)
+## Interactive Tools
 
-see OLD_BACKUP.txt for the old guide
+You do not need to mess with the `$SSH_AUTH_SOCK` variable, because the `IdentityAgent` setting from above
+works at least in the following tools:
+
+- Command Line
+- IntelliJ
+- Fork
+- SourceTree
+- Visual Studio Code
