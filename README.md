@@ -99,6 +99,15 @@ Host *
   IdentityAgent /usr/local/var/run/yubikey-agent.sock 
 ```
 
+## Extracting the Public Key
+
+Sometimes it might be useful to extract the public when you are on a new machine, after disaster recovery or if you
+simply misplaced it.
+In that case you can run `./extractPublicKey.sh`. Which extracts and saves the public key to your `~/.ssh` directory.
+The file will be named <yourUserName>.yubikey.pub. If such a file already exists, you will be asked if you want to
+replace it.
+
+
 ## Interactive Tools
 
 You do not need to mess with the `$SSH_AUTH_SOCK` variable, because the `IdentityAgent` setting from above
