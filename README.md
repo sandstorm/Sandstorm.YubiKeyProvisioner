@@ -118,3 +118,13 @@ works at least in the following tools:
 - Fork
 - SourceTree
 - Visual Studio Code
+
+## Troubleshooting
+
+**Problem**
+
+* Running `./resetAndProvisionYubiKey.sh` fails with a trace ending with something like `Unable to connect with protocol: T0 or T1. Sharing violation.`
+
+**Solution**
+
+* Unplug and plug in your YubiKey again and retry running the script. Something has blocked the Key to be accessed by the YubiKey manager.
