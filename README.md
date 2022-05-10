@@ -32,7 +32,7 @@ We again use a forked version of yubikey-agent, because we need to be able to ho
     ```
 
 
-2. Please ensure that the `~/.ssh/config` file contains the following contents:
+2. Please ensure that the `~/.ssh/config` file exists (you may need to create it) and contains the following contents:
 
     **for Intel Macs**
 
@@ -71,17 +71,17 @@ The above steps has been tested on Mac OS 12.0 on an M1 Mac with:
 
 Can be run separately to upgrade needed dependencies  
 
-run `./installOrUpdateDependencies.sh`
+(in the project directory) run `./installOrUpdateDependencies.sh`
 
 ## Resetting and Provisioning a new YubiKey
 
 IMPORTANT: this will reset your YubiKey to factory defaults.
 
-run `./resetAndProvisionYubiKey.sh`
+(in the project directory) run `./resetAndProvisionYubiKey.sh`
 
 ## Getting your existing YubiKey working on a new System
 
-run `./installOrUpdateDependencies.sh`
+(in the project directory) run `./installOrUpdateDependencies.sh`
 
 You may need to set up your ssh config again. In `~/.ssh/config`
 
