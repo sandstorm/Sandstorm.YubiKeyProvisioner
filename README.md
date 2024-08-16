@@ -3,12 +3,25 @@
 This is a collection of scripts that we use to provision new YubiKeys according
 to our security guidelines -> [Sicherheitskonzept German only](https://sandstorm.de/de/datenschutz-und-datensicherheit/sicherheitskonzept.html)
 
-## How to use
+## How to use - initial setup
 
 1. Clone this repository to your local machine
 2. Check prerequisites: homebrew installed on your machine
 3. run `./installOrUpdateDependencies.sh` locally in the cloned folder
 4. OPTIONAL run `./resetAndProvisionYubiKey.sh` to RESET and setup your YubiKey
+
+## How to use - use existing YubiKey on a new Mac
+
+1. Clone this repository to your local machine
+2. Check prerequisites: homebrew installed on your machine
+3. run `./installOrUpdateDependencies.sh` locally in the cloned folder
+4. run `./extractPublicKey.sh` to reuse the already existing key pair of your YubiKey
+5. make sure you have these lines in your ~/.ssh/config to use your YubiKey for SSH connections:
+
+```
+Host *
+  IdentityAgent $brewPrefix/var/run/yubikey-agent.sock
+```
 
 ## Why we use these scripts
 
