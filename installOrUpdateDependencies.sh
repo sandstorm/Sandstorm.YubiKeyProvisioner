@@ -32,6 +32,22 @@ echo ""
 green_echo "STEP 4: installing yubikey-agent"
 brew install sandstorm/tap/sandstorm-yubikey-agent
 
+echo "Do you want to use the Yubikey-Agent as your default SSH agent? (yes/no)"
+read UseYubikeyAsSSHAgent
+
+if [ "$UseYubikeyAsSSHAgent" == "yes" ] || [ "$UseYubikeyAsSSHAgent" == "y" ]; then
+  mkdir -p ~/.ssh
+
+  config_block="Host *\n  IdentityAgent /opt/homebrew/var/run/yubikey-agent.sock"
+
+  if ! grep -q "IdentityAgent /opt/homebrew/var/run/yubikey-agent.sock" ~/.ssh/config 2>/dev/null; then
+    echo -e "$config_block" >> ~/.ssh/config
+    echo "Yubikey-Agent config added to ~/.ssh/config"
+  else
+    echo "Yubikey-Agent is already configured in ~/.ssh/config"
+  fi
+fi
+
 echo ""
 green_echo "STEP 5: starting yubikey service" 
 brew services start sandstorm/tap/sandstorm-yubikey-agent
