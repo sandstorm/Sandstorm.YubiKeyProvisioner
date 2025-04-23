@@ -10,6 +10,13 @@ currentUser=`whoami`
 # We need to know where brew was installed to use the correct location for
 # the yubikey socket. This can be different depending on processor generation and OS version
 brewPrefix=$(brew --prefix)
+# Variables for SSH Agent and SSH Key configurations
+ssh_dir="$HOME/.ssh"
+config_file="$ssh_dir/config"
+pubkey="./generated/${currentUser}.yubikey.pub"
+config_block="Host *
+   IdentityAgent $brew_path/var/run/yubikey-agent.sock"
+
 green_echo() {
   printf "\033[0;32m%s\033[0m\n" "${1}"
 }
@@ -139,28 +146,46 @@ echo "-> extract public SSH key from YubiKey"
 pkcs15-tool --read-ssh-key 01 | sed -e "s/PIV AUTH pubkey/$currentUser@YubiKey/g" > "$currentUser".yubikey.pub
 echo
 echo
-# DISPLAYING HELP FOR MANUAL STEPS
-green_echo "STEP 6 - Manual Steps to finalize"
-echo
-yellow_echo "  * Register your YubiKey at auth.sandstorm.de"
-yellow_echo "  * Copy the generated public key to your ssh directory (for reference): mkdir -p ~/.ssh/ && cp ./generated/$currentUser.yubikey.pub ~/.ssh/"
-yellow_echo "  * Add the following lines to your ~/.ssh/config to make sure the YubiKey SSH Agent is used for all SSH connections. If the config-file does not exist, add it using `mkdir ~/.ssh; touch ~/.ssh/config`"
-echo
-echo "---------------------------------------------------------"
-echo "Host *"
-echo "   IdentityAgent $brewPrefix/var/run/yubikey-agent.sock"
-echo "---------------------------------------------------------"
-echo
-red_echo "  * Always using the YubiKey for SSH connections is strongly advised!!!"
-yellow_echo "  * Add your public key where needed, e.g. gitlab"
-echo
-echo "---------------------------------------------------------"
-cat "$(whoami)".yubikey.pub
-echo "---------------------------------------------------------"
-echo
-yellow_echo "  * Clone a repo and check if the YubiKey is working. You should be prompted for your PIN. Make sure to check 'Save to Keychain'"
-yellow_echo "  * You do NOT need to override SSH_AUTH_SOCK anymore - the above setup has been tested and works for command line, IntelliJ, Fork, Sourcetree."
-yellow_echo "  * ensure that no SSH_AUTH_SOCK line is present in .zshrc -> run `cat ~/.zshrc | grep SSH_AUTH_SOCK` which should NOT output anything."
+# DISPLAYING HELP FOR FINALIZING STEPS
+green_echo "STEP 6 - Finalizing setup"
+
+# Check if generated key exists
+if [[ -f "$pubkey" ]]; then
+  read -p "Do you want to copy the generated SSH key to ~/.ssh/? (yes/no): " copy_ssh_key
+  if [[ "$copy_ssh_key" =~ ^[Yy](es)?$ ]]; then
+    mkdir -p "$ssh_dir"
+    cp "$pubkey" "$ssh_dir/"
+    green_echo "Public key copied to $ssh_dir/"
+  else
+    yellow_echo "  * Tip: Copy the public key manually using:"
+    echo "    mkdir -p ~/.ssh && cp $pubkey ~/.ssh/"
+  fi
+else
+  yellow_echo "  * Your SSH public key for Yubikey was not found at $pubkey"
+fi
+
+# SSH config block
+if [[ -f "$config_file" ]] && grep -q "$brewPrefix/var/run/yubikey-agent.sock" "$config_file"; then
+  green_echo "Yubikey-Agent is already configured in $config_file"
+else
+  read -p "Do you want to use the Yubikey-Agent as your default SSH agent? (yes/no): " use_yubikey
+  if [[ "$use_yubikey" =~ ^[Yy](es)?$ ]]; then
+    mkdir -p "$ssh_dir"
+    echo -e "\n$config_block" >> "$config_file"
+    green_echo "Yubikey-Agent config added to $config_file"
+  else
+    yellow_echo "  * To use the Yubikey-Agent, add the following lines to $config_file:"
+    echo "---------------------------------------------------------"
+    echo "$config_block"
+    echo "---------------------------------------------------------"
+  fi
+fi
+
+# Remove SSH_AUTH_SOCK from .zshrc
+if [[ -f "$HOME/.zshrc" ]] && grep -q SSH_AUTH_SOCK "$HOME/.zshrc"; then
+  sed -i.bak '/SSH_AUTH_SOCK/d' "$HOME/.zshrc"
+  yellow_echo "  * Removed old SSH_AUTH_SOCK lines from .zshrc (backup: .zshrc.bak)"
+fi
 yellow_echo "  * For more information check out https://github.com/FiloSottile/yubikey-agent"
 echo
 green_echo "DONE"
