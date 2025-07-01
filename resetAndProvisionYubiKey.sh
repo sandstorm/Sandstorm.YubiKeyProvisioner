@@ -146,6 +146,7 @@ echo "-> extract public SSH key from YubiKey"
 pkcs15-tool --read-ssh-key 01 | sed -e "s/PIV AUTH pubkey/$currentUser@YubiKey/g" > "$currentUser".yubikey.pub
 echo
 echo
+popd
 # DISPLAYING HELP FOR FINALIZING STEPS
 green_echo "STEP 6 - Finalizing setup"
 
