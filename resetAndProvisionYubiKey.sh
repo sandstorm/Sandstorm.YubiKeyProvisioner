@@ -29,6 +29,21 @@ red_echo() {
 grey_echo() {
   printf "\033[0;37m%s\033[0m\n" "${1}"
 }
+
+# Ed25519 PIV support requires YubiKey firmware >= 5.7.0 (Yubico extension, not in the PIV standard)
+# will check if the first version-argument is greater_then_or_equal to the second version-argument
+version_ge() {
+  local IFS=.
+  local ver1=($1) ver2=($2) i
+  for ((i=0; i<3; i++)); do
+    local v1=${ver1[i]:-0}
+    local v2=${ver2[i]:-0}
+    ((v1 > v2)) && return 0
+    ((v1 < v2)) && return 1
+  done
+  return 0
+}
+
 # RESETTTING
 green_echo "STEP 1 - Resetting YubiKey"
 echo
@@ -135,9 +150,19 @@ echo
 rm -rf generated &> /dev/null
 mkdir -p generated &> /dev/null
 pushd ./generated &> /dev/null
+
+# yubikey firmware version to check to pick a ssh key algorithm actually supported
+# ED25519 only from firmware version 5.7.0 on, fallback to RSA2048
+firmware_version=$(ykman info | sed -n 's/^Firmware version: //p')
+if [[ -n "$firmware_version" ]] && version_ge "$firmware_version" "5.7.0"; then
+  key_algorithm="ED25519"
+else
+  key_algorithm="RSA2048"
+fi
+echo "-> detected YubiKey firmware $firmware_version, using $key_algorithm for the PIV key"
 echo "-> generate private key on yubikey to be used for SSH"
 echo "   this might take a while, keep tapping the yubikey"
-ykman piv keys generate --management-key "$management_key" --touch-policy CACHED --pin-policy ONCE 9a public.pem
+ykman piv keys generate --algorithm "$key_algorithm" --management-key "$management_key" --touch-policy CACHED --pin-policy ONCE 9a public.pem
 echo "-> generate self-signed certificate for that key"
 echo "   this might take a while, keep tapping the yubikey"
 ykman piv certificates generate --management-key "$management_key" --pin "$pin" -d 3650 -s "CN=SSH for $first_name $last_name" 9a public.pem
