@@ -6,7 +6,7 @@ FILENAME="$USERNAME".yubikey.pub
 brew services stop sandstorm-yubikey-agent
 
 # extract public key
-pkcs15-tool --read-ssh-key 01 | sed -e "s/PIV AUTH pubkey/$USERNAME@YubiKey/g" > "$FILENAME"
+pkcs15-tool --read-ssh-key 01 | sed -E "s/^(ssh-[^ ]+ [^ ]+) .*/\1 $USERNAME@YubiKey/" > "$FILENAME"
 # create the .ssh directory if it does not exist
 mkdir -p ~/.ssh/
 # use mv -i to avoid accidental overrides

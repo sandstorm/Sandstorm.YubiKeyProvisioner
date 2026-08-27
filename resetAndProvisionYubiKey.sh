@@ -168,7 +168,7 @@ echo "   this might take a while, keep tapping the yubikey"
 ykman piv certificates generate --management-key "$management_key" --pin "$pin" -d 3650 -s "CN=SSH for $first_name $last_name" 9a public.pem
 rm public.pem
 echo "-> extract public SSH key from YubiKey"
-pkcs15-tool --read-ssh-key 01 | sed -e "s/PIV AUTH pubkey/$currentUser@YubiKey/g" > "$currentUser".yubikey.pub
+pkcs15-tool --read-ssh-key 01 | sed -E "s/^(ssh-[^ ]+ [^ ]+) .*/\1 $currentUser@YubiKey/" > "$currentUser".yubikey.pub
 echo
 echo
 popd
